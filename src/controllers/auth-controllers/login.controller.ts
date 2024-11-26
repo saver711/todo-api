@@ -15,17 +15,15 @@ export const login = async (req: Request, res: Response) => {
 
     const isPasswordValid = await bcrypt.compare(password, user.password)
     if (!isPasswordValid)
-      return res
-        .status(401)
-        .json({
-          message: "credentials مش صح",
-          errorCode: "INVALID_CREDENTIALS"
-        })
+      return res.status(401).json({
+        message: "credentials مش صح",
+        errorCode: "INVALID_CREDENTIALS"
+      })
 
     const accessToken = jwt.sign(
       { id: user._id, role: user.role },
       process.env.JWT_SECRET!,
-      { expiresIn: "1d" }
+      { expiresIn: "4h" }
     )
     res.status(200).json({ message: "Login successful", accessToken })
   } catch (error) {

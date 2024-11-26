@@ -24,7 +24,7 @@ export const registerAdmin = async (req: Request, res: Response) => {
     const accessToken = jwt.sign(
       { id: newUser._id, role: newUser.role },
       process.env.JWT_SECRET!,
-      { expiresIn: "1d" }
+      { expiresIn: "4h" }
     )
 
     res
