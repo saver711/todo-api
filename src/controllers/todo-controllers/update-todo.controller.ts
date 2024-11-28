@@ -1,10 +1,10 @@
-import { Todo } from "@models/todo.model"
 import { Request, Response } from "express"
+import { Todo } from "@models/todo.model"
 
 export const updateTodo = async (req: Request, res: Response) => {
   try {
     const { id } = req.params
-    const { title, description, status } = req.body
+    const { title, description, deadline } = req.body
 
     // Find the todo by ID
     const todo = await Todo.findById(id)
@@ -12,10 +12,10 @@ export const updateTodo = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "Todo not found" })
     }
 
-    // Update the todo fields
+    // Update allowed fields
     if (title !== undefined) todo.title = title
     if (description !== undefined) todo.description = description
-    if (status !== undefined) todo.status = status
+    if (deadline !== undefined) todo.deadline = deadline
 
     // Save the updated document
     const updatedTodo = await todo.save()

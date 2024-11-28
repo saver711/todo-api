@@ -9,6 +9,7 @@ const TodoSchema = new mongoose.Schema(
       enum: ["PENDING", "IN_PROGRESS", "COMPLETED"],
       default: "PENDING"
     },
+    deadline: { type: Date, required: true },
     createdBy: { type: mongoose.Types.ObjectId, ref: "User", required: true }
   },
   { timestamps: true }

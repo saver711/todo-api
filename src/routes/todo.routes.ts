@@ -1,11 +1,13 @@
+import { completeTodo } from "@controllers/todo-controllers/complete-todo.controller"
+import { getTodoById } from "@controllers/todo-controllers/get-todo-by-id.controller"
+import { startTodo } from "@controllers/todo-controllers/start-todo.controller"
+import { updateTodo } from "@controllers/todo-controllers/update-todo.controller"
 import express, { NextFunction, Request, Response } from "express"
 import { createTodo } from "../controllers/todo-controllers/create-todo.controller"
 import { deleteTodo } from "../controllers/todo-controllers/delete-todo.controller"
 import { getAllTodos } from "../controllers/todo-controllers/get-all-todos.controller"
 import { authenticate } from "../middlewares/auth.middleware"
 import { authorizeRole } from "../middlewares/role.middleware"
-import { getTodoById } from "@controllers/todo-controllers/get-todo-by-id.controller"
-import { updateTodo } from "@controllers/todo-controllers/update-todo.controller"
 
 const router = express.Router()
 
@@ -40,24 +42,7 @@ const router = express.Router()
  *                 todos:
  *                   type: array
  *                   items:
- *                     type: object
- *                     properties:
- *                       _id:
- *                         type: string
- *                       title:
- *                         type: string
- *                       description:
- *                         type: string
- *                       status:
- *                         type: string
- *                         enum: [PENDING, IN_PROGRESS, COMPLETED]
- *                       createdBy:
- *                         type: object
- *                         properties:
- *                           _id:
- *                             type: string
- *                           email:
- *                             type: string
+ *                     $ref: '#/components/schemas/Todo'
  *                 pagination:
  *                   type: object
  *                   properties:
@@ -91,6 +76,9 @@ const router = express.Router()
  *                 type: string
  *               description:
  *                 type: string
+ *               deadline:
+ *                 type: string
+ *                 format: date-time
  *             required:
  *               - title
  *     responses:
@@ -135,15 +123,6 @@ const router = express.Router()
  *                   $ref: '#/components/schemas/Todo'
  *       404:
  *         description: Todo not found
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                 errorCode:
- *                   type: string
  *       500:
  *         description: Internal Server Error
  */
@@ -152,14 +131,14 @@ const router = express.Router()
  * @swagger
  * /api/todos/{id}:
  *   put:
- *     summary: Update a todo
+ *     summary: Edit a todo
  *     tags:
  *       - Todos
  *     parameters:
  *       - name: id
  *         in: path
  *         required: true
- *         description: ID of the todo to update
+ *         description: ID of the todo to edit
  *         schema:
  *           type: string
  *     requestBody:
@@ -173,12 +152,78 @@ const router = express.Router()
  *                 type: string
  *               description:
  *                 type: string
- *               status:
+ *               deadline:
  *                 type: string
- *                 enum: [PENDING, IN_PROGRESS, COMPLETED]
+ *                 format: date-time
+ *             required:
+ *               - title
  *     responses:
  *       200:
  *         description: Todo updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 todo:
+ *                   $ref: '#/components/schemas/Todo'
+ *       404:
+ *         description: Todo not found
+ *       500:
+ *         description: Internal Server Error
+ */
+
+/**
+ * @swagger
+ * /api/todos/{id}/start:
+ *   post:
+ *     summary: Start a todo
+ *     tags:
+ *       - Todos
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: ID of the todo to start
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Todo started successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 todo:
+ *                   $ref: '#/components/schemas/Todo'
+ *       404:
+ *         description: Todo not found
+ *       500:
+ *         description: Internal Server Error
+ */
+
+/**
+ * @swagger
+ * /api/todos/{id}/complete:
+ *   post:
+ *     summary: Mark a todo as completed
+ *     tags:
+ *       - Todos
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: ID of the todo to mark as completed
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Todo marked as completed successfully
  *         content:
  *           application/json:
  *             schema:
@@ -233,6 +278,30 @@ router.post(
     authorizeRole(["ADMIN", "SUPER_ADMIN"])(req, res, next)
   },
   createTodo
+)
+router.post(
+  "/:id/start",
+  (req: Request, res: Response, next: NextFunction) => {
+    authenticate(req, res, next)
+  },
+  (req, res, next) => {
+    authorizeRole(["ADMIN", "SUPER_ADMIN"])(req, res, next)
+  },
+  (req, res) => {
+    startTodo(req, res)
+  }
+)
+router.post(
+  "/:id/complete",
+  (req: Request, res: Response, next: NextFunction) => {
+    authenticate(req, res, next)
+  },
+  (req, res, next) => {
+    authorizeRole(["ADMIN", "SUPER_ADMIN"])(req, res, next)
+  },
+  (req, res) => {
+    completeTodo(req, res)
+  }
 )
 router.get(
   "/",
