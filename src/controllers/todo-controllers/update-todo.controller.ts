@@ -9,7 +9,9 @@ export const updateTodo = async (req: Request, res: Response) => {
     // Find the todo by ID
     const todo = await Todo.findById(id)
     if (!todo) {
-      return res.status(404).json({ message: "Todo not found" })
+      return res
+        .status(404)
+        .json({ message: "Todo not found", errorCode: "TODO_NOT_FOUND" })
     }
 
     // Update allowed fields

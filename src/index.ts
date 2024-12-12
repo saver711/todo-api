@@ -1,18 +1,18 @@
-import express from "express"
 import dotenv from "dotenv"
+import express from "express"
 import { connectDB } from "./config/db"
 import authRoutes from "./routes/auth.routes"
 import todoRoutes from "./routes/todo.routes"
 import { swaggerSpec } from "./swagger/swagger"
 
+import bcrypt from "bcrypt"
 import swaggerUi from "swagger-ui-express"
 import { User } from "./models/user.model"
-import bcrypt from "bcrypt"
-
+import cors from "cors"
 dotenv.config()
 
 const app = express()
-
+app.use(cors())
 // Middleware
 app.use(express.json())
 
